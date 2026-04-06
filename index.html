@@ -43,7 +43,7 @@
     </nav>
 
     <header class="max-w-4xl mx-auto text-center py-16 px-6">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic">Digital Store.</h1>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic text-center">Digital Store.</h1>
         <div class="relative max-w-md mx-auto mb-8">
             <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5"></i>
             <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search assets..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white">
@@ -54,10 +54,12 @@
     </header>
 
     <section class="max-w-6xl mx-auto px-6 pb-24">
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <p class="col-span-full text-center opacity-50">Syncing with Digital Vault...</p>
-        </div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
     </section>
+
+    <a href="https://wa.me/2348143224090" target="_blank" class="fixed bottom-6 right-6 z-50 bg-green-500 p-4 rounded-full shadow-lg shadow-green-500/30 hover:scale-110 transition-transform">
+        <i data-lucide="message-circle" class="text-white w-6 h-6"></i>
+    </a>
 
     <div id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-96 bg-[#050a15] border-l border-white/10 z-50 p-8 shadow-2xl flex flex-col">
         <div class="flex justify-between items-center mb-8">
@@ -80,7 +82,7 @@
                 <h2 class="text-2xl font-bold">Support Request</h2>
                 <button onclick="toggleModal('contact-modal')"><i data-lucide="x"></i></button>
             </div>
-            <form action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST" class="space-y-4">
+            <form action="https://formspree.io/f/YOUR_ID" method="POST" class="space-y-4">
                 <input type="text" name="name" placeholder="Name" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-blue-500" required>
                 <textarea name="message" rows="4" placeholder="How can we help?" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-blue-500" required></textarea>
                 <button type="submit" class="w-full bg-blue-600 py-4 rounded-xl font-bold">Send Message</button>
@@ -99,49 +101,45 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCwHgOktG4f_JZDZ17RSDFVP2jxwO_s7KA",
-            authDomain: "digitalvault-f8900.firebaseapp.com",
-            projectId: "digitalvault-f8900",
-            storageBucket: "digitalvault-f8900.firebasestorage.app",
-            messagingSenderId: "730158167506",
-            appId: "1:730158167506:web:d814bde62831b8ac8ec40b"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        async function loadData() {
-            const querySnapshot = await getDocs(collection(db, "products"));
-            window.products = [];
-            querySnapshot.forEach((doc) => {
-                window.products.push({ id: doc.id, ...doc.data() });
-            });
-            renderProducts();
-        }
-        loadData();
-    </script>
-
     <script>
+        // ADD NEW PRODUCTS HERE MANUALLY
+        const products = [
+            { 
+                id: 1, 
+                name: "Edoni Study Guide", 
+                price: 2000, 
+                desc: "Full comprehensive guide for final year students.", 
+                fileID: "1WaJCKQyrUR-U0rqssTGucuS21brgL_Pg", 
+                icon: "book-open", 
+                tag: "New" 
+            },
+            { 
+                id: 2, 
+                name: "Salinity Appraisal Notes", 
+                price: 1500, 
+                desc: "Research data and appraisal methods for Bayelsa freshwater.", 
+                fileID: "PASTE_ANOTHER_DRIVE_ID_HERE", 
+                icon: "file-text", 
+                tag: "Popular" 
+            }
+        ];
+
         let cart = [];
-        window.products = [];
 
         function renderProducts(filter = '') {
             const grid = document.getElementById('product-grid');
-            const filtered = window.products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+            const filtered = products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
             grid.innerHTML = filtered.map(p => `
                 <div class="glass-card p-8 rounded-[2rem] relative flex flex-col h-full">
-                    <div class="absolute top-4 right-4 bg-blue-600/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-500/20">${p.tag || 'New'}</div>
-                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6"><i data-lucide="${p.icon || 'book'}"></i></div>
-                    <h3 class="text-xl font-bold mb-3">${p.name}</h3>
+                    <div class="absolute top-4 right-4 bg-blue-600/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-500/20">${p.tag}</div>
+                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6"><i data-lucide="${p.icon}"></i></div>
+                    <h3 class="text-xl font-bold mb-3 text-center md:text-left">${p.name}</h3>
                     <p class="text-gray-400 text-sm mb-8 leading-relaxed">${p.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
-                        <span class="text-2xl font-black italic text-white">₦${Number(p.price).toLocaleString()}</span>
-                        <button onclick="addToCart('${p.id}')" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-bold transition-all active:scale-90"><i data-lucide="plus" class="w-5 h-5"></i></button>
+                        <span class="text-2xl font-black italic text-white">₦${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart(${p.id})" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-bold transition-all active:scale-90">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -153,9 +151,9 @@
         function toggleCart() { document.getElementById('cart-panel').classList.toggle('cart-active'); }
 
         function addToCart(id) {
-            const p = window.products.find(item => item.id === id);
-            if (p && !cart.find(item => item.id === id)) {
-                cart.push(p);
+            const product = products.find(p => p.id === id);
+            if (!cart.find(item => item.id === id)) {
+                cart.push(product);
                 updateCartUI();
                 toggleCart();
             }
@@ -170,8 +168,8 @@
             document.getElementById('cart-count').innerText = cart.length;
             let total = 0;
             document.getElementById('cart-items').innerHTML = cart.map(item => {
-                total += Number(item.price);
-                return `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="font-bold text-sm">${item.name}</p><p class="text-blue-400 text-xs font-bold">₦${Number(item.price).toLocaleString()}</p></div><button onclick="removeFromCart('${item.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+                total += item.price;
+                return `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="font-bold text-sm">${item.name}</p><p class="text-blue-400 text-xs font-bold">₦${item.price.toLocaleString()}</p></div><button onclick="removeFromCart(${item.id})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
             }).join('');
             document.getElementById('cart-total').innerText = "₦" + total.toLocaleString();
             lucide.createIcons();
@@ -183,21 +181,31 @@
             if (cart.length === 0) return;
 
             FlutterwaveCheckout({
-                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X",
+                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X", // YOUR FLUTTERWAVE KEY
                 tx_ref: "DV-" + Date.now(),
-                amount: cart.reduce((s, i) => s + Number(i.price), 0),
+                amount: cart.reduce((sum, item) => sum + item.price, 0),
                 currency: "NGN",
-                customer: { email: email },
+                customer: { email: email, name: "Buyer" },
                 callback: (data) => {
                     if (data.status === "successful") {
                         toggleModal('success-modal');
                         cart.forEach(item => {
-                            window.open(`https://drive.google.com/uc?export=download&id=${item.fileID}`, '_blank');
+                            // Force download using hidden link
+                            const link = document.createElement('a');
+                            link.href = `https://drive.google.com/uc?export=download&id=${item.fileID}`;
+                            link.target = "_blank";
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
                         });
+                        cart = [];
+                        updateCartUI();
                     }
                 }
             });
         }
+
+        renderProducts();
     </script>
 </body>
-</html>
+    </html>
