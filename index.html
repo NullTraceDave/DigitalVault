@@ -31,19 +31,19 @@
             <div class="bg-blue-600 p-2 rounded-xl group-hover:rotate-12 transition-transform">
                 <i data-lucide="shield-check" class="text-white"></i>
             </div>
-            <span class="text-2xl font-extrabold tracking-tighter">DigitalVault<span class="text-blue-500">.</span></span>
+            <span class="text-2xl font-extrabold tracking-tighter text-white">DigitalVault<span class="text-blue-500">.</span></span>
         </div>
         <div class="flex items-center gap-4">
             <button onclick="toggleModal('contact-modal')" class="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Support</button>
             <button onclick="toggleCart()" class="relative bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10">
-                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+                <i data-lucide="shopping-bag" class="w-5 h-5 text-white"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white">0</span>
             </button>
         </div>
     </nav>
 
     <header class="max-w-4xl mx-auto text-center py-16 px-6">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic text-center">Digital Store.</h1>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic">Digital Store.</h1>
         <div class="relative max-w-md mx-auto mb-8">
             <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5"></i>
             <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search assets..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white">
@@ -63,46 +63,34 @@
 
     <div id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-96 bg-[#050a15] border-l border-white/10 z-50 p-8 shadow-2xl flex flex-col">
         <div class="flex justify-between items-center mb-8">
-            <h2 class="text-2xl font-bold">Your Cart</h2>
-            <button onclick="toggleCart()"><i data-lucide="x"></i></button>
+            <h2 class="text-2xl font-bold text-white">Your Cart</h2>
+            <button onclick="toggleCart()" class="text-white"><i data-lucide="x"></i></button>
         </div>
         <div id="cart-items" class="flex-grow overflow-y-auto space-y-4"></div>
         <div class="border-t border-white/10 pt-6 mt-6">
-            <div class="flex justify-between text-xl font-bold mb-6">
+            <div class="flex justify-between text-xl font-bold mb-6 text-white">
                 <span>Total:</span>
                 <span id="cart-total">₦0</span>
             </div>
-            <button onclick="checkout()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20">Checkout Now</button>
-        </div>
-    </div>
-
-    <div id="contact-modal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4">
-        <div class="glass-card max-w-lg w-full p-8 rounded-[2rem]">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Support Request</h2>
-                <button onclick="toggleModal('contact-modal')"><i data-lucide="x"></i></button>
-            </div>
-            <form action="https://formspree.io/f/YOUR_ID" method="POST" class="space-y-4">
-                <input type="text" name="name" placeholder="Name" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-blue-500" required>
-                <textarea name="message" rows="4" placeholder="How can we help?" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-blue-500" required></textarea>
-                <button type="submit" class="w-full bg-blue-600 py-4 rounded-xl font-bold">Send Message</button>
-            </form>
+            <button onclick="checkout()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20 text-white">Checkout Now</button>
         </div>
     </div>
 
     <div id="success-modal" class="fixed inset-0 bg-black/95 z-50 hidden items-center justify-center p-4">
-        <div class="text-center">
+        <div class="text-center glass-card p-10 rounded-[2.5rem] max-w-sm">
             <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/30">
                 <i data-lucide="check" class="text-white w-10 h-10"></i>
             </div>
-            <h2 class="text-3xl font-bold mb-2">Payment Successful!</h2>
-            <p class="text-gray-400 mb-8">Your assets are downloading...</p>
-            <button onclick="location.reload()" class="bg-white/10 px-8 py-3 rounded-full hover:bg-white/20 transition-all">Done</button>
+            <h2 class="text-2xl font-bold mb-2 text-white">Done!</h2>
+            <p class="text-gray-400 mb-8">Click below to open your file. If it doesn't open, copy the link.</p>
+            
+            <div id="download-container" class="space-y-4"></div>
+            
+            <button onclick="location.reload()" class="mt-8 text-gray-500 text-sm hover:text-white underline">Back to Store</button>
         </div>
     </div>
 
     <script>
-        // ADD NEW PRODUCTS HERE MANUALLY
         const products = [
             { 
                 id: 1, 
@@ -111,16 +99,7 @@
                 desc: "Full comprehensive guide for final year students.", 
                 fileID: "1WaJCKQyrUR-U0rqssTGucuS21brgL_Pg", 
                 icon: "book-open", 
-                tag: "New" 
-            },
-            { 
-                id: 2, 
-                name: "Salinity Appraisal Notes", 
-                price: 1500, 
-                desc: "Research data and appraisal methods for Bayelsa freshwater.", 
-                fileID: "PASTE_ANOTHER_DRIVE_ID_HERE", 
-                icon: "file-text", 
-                tag: "Popular" 
+                tag: "Hot" 
             }
         ];
 
@@ -133,11 +112,11 @@
                 <div class="glass-card p-8 rounded-[2rem] relative flex flex-col h-full">
                     <div class="absolute top-4 right-4 bg-blue-600/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-500/20">${p.tag}</div>
                     <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6"><i data-lucide="${p.icon}"></i></div>
-                    <h3 class="text-xl font-bold mb-3 text-center md:text-left">${p.name}</h3>
+                    <h3 class="text-xl font-bold mb-3 text-white text-center md:text-left">${p.name}</h3>
                     <p class="text-gray-400 text-sm mb-8 leading-relaxed">${p.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <span class="text-2xl font-black italic text-white">₦${p.price.toLocaleString()}</span>
-                        <button onclick="addToCart(${p.id})" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-bold transition-all active:scale-90">
+                        <button onclick="addToCart(${p.id})" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-bold transition-all active:scale-90 text-white">
                             <i data-lucide="plus" class="w-5 h-5"></i>
                         </button>
                     </div>
@@ -169,7 +148,7 @@
             let total = 0;
             document.getElementById('cart-items').innerHTML = cart.map(item => {
                 total += item.price;
-                return `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="font-bold text-sm">${item.name}</p><p class="text-blue-400 text-xs font-bold">₦${item.price.toLocaleString()}</p></div><button onclick="removeFromCart(${item.id})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+                return `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="font-bold text-sm text-white">${item.name}</p><p class="text-blue-400 text-xs font-bold">₦${item.price.toLocaleString()}</p></div><button onclick="removeFromCart(${item.id})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
             }).join('');
             document.getElementById('cart-total').innerText = "₦" + total.toLocaleString();
             lucide.createIcons();
@@ -177,27 +156,27 @@
 
         function checkout() {
             const email = document.getElementById('user-email').value;
-            if (!email || !email.includes('@')) { alert("Enter delivery email at the top!"); return; }
+            if (!email || !email.includes('@')) { alert("Enter email first!"); return; }
             if (cart.length === 0) return;
 
             FlutterwaveCheckout({
-                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X", // YOUR FLUTTERWAVE KEY
+                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X", // Paste YOUR key here
                 tx_ref: "DV-" + Date.now(),
                 amount: cart.reduce((sum, item) => sum + item.price, 0),
                 currency: "NGN",
-                customer: { email: email, name: "Buyer" },
+                customer: { email: email },
                 callback: (data) => {
                     if (data.status === "successful") {
+                        const container = document.getElementById('download-container');
+                        // WE CHANGE THE URL TO "VIEW" MODE - THIS NEVER GETS BLOCKED
+                        container.innerHTML = cart.map(item => `
+                            <a href="https://drive.google.com/file/d/${item.fileID}/view" 
+                               class="block w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg" target="_blank">
+                               Open ${item.name}
+                            </a>
+                        `).join('');
+                        
                         toggleModal('success-modal');
-                        cart.forEach(item => {
-                            // Force download using hidden link
-                            const link = document.createElement('a');
-                            link.href = `https://drive.google.com/uc?export=download&id=${item.fileID}`;
-                            link.target = "_blank";
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        });
                         cart = [];
                         updateCartUI();
                     }
@@ -208,4 +187,4 @@
         renderProducts();
     </script>
 </body>
-    </html>
+</html>
