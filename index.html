@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigitalVault | Premium Multi-Asset Store</title>
+    
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        :root { --primary: #3b82f6; --accent: #8b5cf6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #050a15; color: #f8fafc; overflow-x: hidden; }
+        .blob { position: absolute; width: 400px; height: 400px; background: linear-gradient(135deg, var(--primary), var(--accent)); filter: blur(80px); border-radius: 50%; z-index: -1; opacity: 0.15; animation: move 20s infinite alternate; }
+        @keyframes move { from { transform: translate(-10%, -10%); } to { transform: translate(20%, 20%); } }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .glass-card:hover { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(59, 130, 246, 0.3); transform: translateY(-8px); }
+        .modal-active { display: flex !important; }
+        .cart-active { transform: translateX(0) !important; }
+        #cart-panel { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    <div class="blob" style="top: -100px; left: -100px;"></div>
+    <div class="blob" style="bottom: -100px; right: -100px; animation-delay: -5s;"></div>
+
+    <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center sticky top-0 z-40 bg-[#050a15]/80 backdrop-blur-md">
+        <div class="flex items-center gap-3 group cursor-pointer" onclick="location.reload()">
+            <div class="bg-blue-600 p-2 rounded-xl group-hover:rotate-12 transition-transform">
+                <i data-lucide="shield-check" class="text-white"></i>
+            </div>
+            <span class="text-2xl font-extrabold tracking-tighter">DigitalVault<span class="text-blue-500">.</span></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleModal('contact-modal')" class="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Support</button>
+            <button onclick="toggleCart()" class="relative bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="max-w-4xl mx-auto text-center py-16 px-6">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic">Digital Store.</h1>
+        <div class="relative max-w-md mx-auto mb-8">
+            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5"></i>
+            <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search assets..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white">
+        </div>
+        <div class="max-w-md mx-auto glass-card p-2 rounded-2xl border-blue-500/20">
+            <input type="email" id="user-email" placeholder="Delivery Email (Required)" class="bg-transparent border-none focus:ring-0 px-4 py-3 w-full text-white text-center">
+        </div>
+    </header>
+
+    <section class="max-w-6xl mx-auto px-6 pb-24">
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <p class="col-span-full text-center opacity-50">Syncing with Digital Vault...</p>
+        </div>
+    </section>
+
+    <div id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-96 bg-[#050a15] border-l border-white/10 z-50 p-8 shadow-2xl flex flex-col">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold">Your Cart</h2>
+            <button onclick="toggleCart()"><i data-lucide="x"></i></button>
+        </div>
+        <div id="cart-items" class="flex-grow overflow-y-auto space-y-4"></div>
+        <div class="border-t border-white/10 pt-6 mt-6">
+            <div class="flex justify-between text-xl font-bold mb-6">
+                <span>Total:</span>
+                <span id="cart-total">₦0</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20">Checkout Now</button>
+        </div>
+    </div>
+
+    <div id="contact-modal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4">
+        <div class="glass-card max-w-lg w-full p-8 rounded-[2rem]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Support Request</h2>
+                <button onclick="toggleModal('contact-modal')"><i data-lucide="x"></i></button>
+            </div>
+            <form action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST" class="space-y-4">
+                <input type="text" name="name" placeholder="Name" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-blue-500" required>
+                <textarea name="message" rows="4" placeholder="How can we help?" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 outline-none focus:border-blue-500" required></textarea>
+                <button type="submit" class="w-full bg-blue-600 py-4 rounded-xl font-bold">Send Message</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="success-modal" class="fixed inset-0 bg-black/95 z-50 hidden items-center justify-center p-4">
+        <div class="text-center">
+            <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/30">
+                <i data-lucide="check" class="text-white w-10 h-10"></i>
+            </div>
+            <h2 class="text-3xl font-bold mb-2">Payment Successful!</h2>
+            <p class="text-gray-400 mb-8">Your assets are downloading...</p>
+            <button onclick="location.reload()" class="bg-white/10 px-8 py-3 rounded-full hover:bg-white/20 transition-all">Done</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCwHgOktG4f_JZDZ17RSDFVP2jxwO_s7KA",
+            authDomain: "digitalvault-f8900.firebaseapp.com",
+            projectId: "digitalvault-f8900",
+            storageBucket: "digitalvault-f8900.firebasestorage.app",
+            messagingSenderId: "730158167506",
+            appId: "1:730158167506:web:d814bde62831b8ac8ec40b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadData() {
+            const querySnapshot = await getDocs(collection(db, "products"));
+            window.products = [];
+            querySnapshot.forEach((doc) => {
+                window.products.push({ id: doc.id, ...doc.data() });
+            });
+            renderProducts();
+        }
+        loadData();
+    </script>
+
+    <script>
+        let cart = [];
+        window.products = [];
+
+        function renderProducts(filter = '') {
+            const grid = document.getElementById('product-grid');
+            const filtered = window.products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass-card p-8 rounded-[2rem] relative flex flex-col h-full">
+                    <div class="absolute top-4 right-4 bg-blue-600/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-500/20">${p.tag || 'New'}</div>
+                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6"><i data-lucide="${p.icon || 'book'}"></i></div>
+                    <h3 class="text-xl font-bold mb-3">${p.name}</h3>
+                    <p class="text-gray-400 text-sm mb-8 leading-relaxed">${p.desc}</p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <span class="text-2xl font-black italic text-white">₦${Number(p.price).toLocaleString()}</span>
+                        <button onclick="addToCart('${p.id}')" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl font-bold transition-all active:scale-90"><i data-lucide="plus" class="w-5 h-5"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function filterProducts() { renderProducts(document.getElementById('search-bar').value); }
+        function toggleModal(id) { document.getElementById(id).classList.toggle('modal-active'); }
+        function toggleCart() { document.getElementById('cart-panel').classList.toggle('cart-active'); }
+
+        function addToCart(id) {
+            const p = window.products.find(item => item.id === id);
+            if (p && !cart.find(item => item.id === id)) {
+                cart.push(p);
+                updateCartUI();
+                toggleCart();
+            }
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            let total = 0;
+            document.getElementById('cart-items').innerHTML = cart.map(item => {
+                total += Number(item.price);
+                return `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="font-bold text-sm">${item.name}</p><p class="text-blue-400 text-xs font-bold">₦${Number(item.price).toLocaleString()}</p></div><button onclick="removeFromCart('${item.id}')" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+            }).join('');
+            document.getElementById('cart-total').innerText = "₦" + total.toLocaleString();
+            lucide.createIcons();
+        }
+
+        function checkout() {
+            const email = document.getElementById('user-email').value;
+            if (!email || !email.includes('@')) { alert("Enter delivery email at the top!"); return; }
+            if (cart.length === 0) return;
+
+            FlutterwaveCheckout({
+                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X",
+                tx_ref: "DV-" + Date.now(),
+                amount: cart.reduce((s, i) => s + Number(i.price), 0),
+                currency: "NGN",
+                customer: { email: email },
+                callback: (data) => {
+                    if (data.status === "successful") {
+                        toggleModal('success-modal');
+                        cart.forEach(item => {
+                            window.open(`https://drive.google.com/uc?export=download&id=${item.fileID}`, '_blank');
+                        });
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
