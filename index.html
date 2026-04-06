@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigitalVault | Premium Multi-Asset Store</title>
+    <title>DigitalVault | Premium Store</title>
     
     <script src="https://checkout.flutterwave.com/v3.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,52 +11,42 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        :root { --primary: #3b82f6; --accent: #8b5cf6; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #050a15; color: #f8fafc; overflow-x: hidden; }
-        .blob { position: absolute; width: 400px; height: 400px; background: linear-gradient(135deg, var(--primary), var(--accent)); filter: blur(80px); border-radius: 50%; z-index: -1; opacity: 0.15; animation: move 20s infinite alternate; }
-        @keyframes move { from { transform: translate(-10%, -10%); } to { transform: translate(20%, 20%); } }
-        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .glass-card:hover { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(59, 130, 246, 0.3); transform: translateY(-8px); }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); transition: 0.3s; }
         .modal-active { display: flex !important; }
+        #cart-panel { transform: translateX(100%); transition: transform 0.3s ease; }
         .cart-active { transform: translateX(0) !important; }
-        #cart-panel { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
     </style>
 </head>
 <body class="min-h-screen relative">
-    <div class="blob" style="top: -100px; left: -100px;"></div>
-    <div class="blob" style="bottom: -100px; right: -100px; animation-delay: -5s;"></div>
 
     <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center sticky top-0 z-40 bg-[#050a15]/80 backdrop-blur-md">
-        <div class="flex items-center gap-3 group cursor-pointer" onclick="location.reload()">
-            <div class="bg-blue-600 p-2 rounded-xl group-hover:rotate-12 transition-transform">
-                <i data-lucide="shield-check" class="text-white"></i>
-            </div>
-            <span class="text-2xl font-extrabold tracking-tighter text-white">DigitalVault<span class="text-blue-500">.</span></span>
+        <div class="flex items-center gap-3 cursor-pointer" onclick="location.href='https://nulltracedave.github.io/DigitalVault/'">
+            <div class="bg-blue-600 p-2 rounded-xl"><i data-lucide="shield-check" class="text-white"></i></div>
+            <span class="text-2xl font-extrabold text-white">DigitalVault<span class="text-blue-500">.</span></span>
         </div>
-        <div class="flex items-center gap-4">
-            <button onclick="toggleCart()" class="relative bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10">
-                <i data-lucide="shopping-bag" class="w-5 h-5 text-white"></i>
-                <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white">0</span>
-            </button>
-        </div>
+        <button onclick="toggleCart()" class="relative bg-white/5 p-3 rounded-xl border border-white/10">
+            <i data-lucide="shopping-bag" class="w-5 h-5 text-white"></i>
+            <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-[10px] px-1.5 rounded-full text-white">0</span>
+        </button>
     </nav>
 
-    <header class="max-w-4xl mx-auto text-center py-16 px-6">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic">Digital Store.</h1>
+    <header class="max-w-4xl mx-auto text-center py-12 px-6">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 italic text-white">Digital Store.</h1>
         <div class="relative max-w-md mx-auto mb-8">
             <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5"></i>
-            <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search assets..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white">
+            <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search assets..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none text-white focus:border-blue-500">
         </div>
         <div class="max-w-md mx-auto glass-card p-2 rounded-2xl border-blue-500/20">
-            <input type="email" id="user-email" placeholder="Delivery Email (Required)" class="bg-transparent border-none focus:ring-0 px-4 py-3 w-full text-white text-center">
+            <input type="email" id="user-email" placeholder="Delivery Email (Required)" class="bg-transparent border-none text-center w-full p-2 outline-none text-white">
         </div>
     </header>
 
     <section class="max-w-6xl mx-auto px-6 pb-24">
-        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        <div id="product-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
     </section>
 
-    <a href="https://wa.me/2348143224090" target="_blank" class="fixed bottom-6 right-6 z-50 bg-green-500 p-4 rounded-full shadow-lg shadow-green-500/30 hover:scale-110 transition-transform">
+    <a href="https://wa.me/2348143224090" target="_blank" class="fixed bottom-6 right-6 z-50 bg-green-500 p-4 rounded-full shadow-lg">
         <i data-lucide="message-circle" class="text-white w-6 h-6"></i>
     </a>
 
@@ -65,64 +55,49 @@
             <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/30">
                 <i data-lucide="check" class="text-white w-10 h-10"></i>
             </div>
-            <h2 class="text-2xl font-bold mb-2 text-white">Payment Done!</h2>
-            <p class="text-gray-400 mb-8">Click below to open your file. If it doesn't open, ensure pop-ups are allowed.</p>
+            <h2 class="text-2xl font-bold mb-2 text-white">Payment Success!</h2>
+            <p class="text-gray-400 mb-8">Tap the button below to get your file.</p>
             <div id="download-links" class="space-y-4"></div>
-            <button onclick="location.reload()" class="mt-8 text-gray-500 text-sm hover:text-white underline">Back to Store</button>
+            <button onclick="window.location.href='https://nulltracedave.github.io/DigitalVault/'" class="mt-8 text-gray-500 text-sm underline">Back to Store</button>
         </div>
     </div>
 
-    <div id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-96 bg-[#050a15] border-l border-white/10 z-50 p-8 shadow-2xl flex flex-col">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-2xl font-bold text-white">Your Cart</h2>
-            <button onclick="toggleCart()" class="text-white"><i data-lucide="x"></i></button>
+    <div id="cart-panel" class="fixed top-0 right-0 h-full w-80 bg-[#050a15] border-l border-white/10 z-50 p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-6 text-white">
+            <h2 class="text-xl font-bold">Your Cart</h2>
+            <button onclick="toggleCart()"><i data-lucide="x"></i></button>
         </div>
-        <div id="cart-items" class="flex-grow overflow-y-auto space-y-4"></div>
-        <div class="border-t border-white/10 pt-6 mt-6">
-            <div class="flex justify-between text-xl font-bold mb-6 text-white">
-                <span>Total:</span>
-                <span id="cart-total">₦0</span>
-            </div>
-            <button onclick="checkout()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 shadow-lg text-white">Checkout Now</button>
+        <div id="cart-items" class="flex-grow space-y-4 overflow-y-auto"></div>
+        <div class="pt-6 border-t border-white/10 mt-4">
+            <div class="flex justify-between font-bold mb-4 text-white"><span>Total:</span><span id="cart-total">₦0</span></div>
+            <button onclick="checkout()" class="w-full bg-blue-600 py-4 rounded-xl font-bold text-white">Pay Now</button>
         </div>
     </div>
 
     <script>
-        const products = [
-            { 
-                id: 1, 
-                name: "Edoni Study Guide", 
-                price: 2000, 
-                desc: "Full comprehensive guide for final year students.", 
-                fileID: "1WaJCKQyrUR-U0rqssTGucuS21brgL_Pg", 
-                icon: "book-open", 
-                tag: "New" 
-            }
-        ];
-
+        const products = [{ id: 1, name: "Edoni Study Guide", price: 2000, desc: "Final year guide.", fileID: "1WaJCKQyrUR-U0rqssTGucuS21brgL_Pg", icon: "book" }];
         let cart = [];
 
-        function renderProducts(filter = '') {
+        function renderProducts(f = '') {
             const grid = document.getElementById('product-grid');
-            const filtered = products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+            const filtered = products.filter(p => p.name.toLowerCase().includes(f.toLowerCase()));
             grid.innerHTML = filtered.map(p => `
-                <div class="glass-card p-8 rounded-[2rem] relative flex flex-col h-full">
-                    <div class="absolute top-4 right-4 bg-blue-600/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-500/20">${p.tag}</div>
-                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6 text-white"><i data-lucide="${p.icon}"></i></div>
-                    <h3 class="text-xl font-bold mb-3 text-white">${p.name}</h3>
-                    <p class="text-gray-400 text-sm mb-8 leading-relaxed">${p.desc}</p>
-                    <div class="flex items-center justify-between mt-auto">
-                        <span class="text-2xl font-black italic text-white">₦${p.price.toLocaleString()}</span>
-                        <button onclick="addToCart(${p.id})" class="bg-blue-600 p-4 rounded-2xl font-bold text-white transition-all active:scale-90"><i data-lucide="plus"></i></button>
+                <div class="glass-card p-8 rounded-[2rem] flex flex-col h-full">
+                    <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center mb-4"><i data-lucide="${p.icon}"></i></div>
+                    <h3 class="font-bold text-xl text-white">${p.name}</h3>
+                    <p class="text-gray-400 text-sm mb-6">${p.desc}</p>
+                    <div class="mt-auto flex justify-between items-center">
+                        <span class="font-bold text-white">₦${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart(${p.id})" class="bg-blue-600 p-3 rounded-xl text-white active:scale-95 transition-transform"><i data-lucide="plus"></i></button>
                     </div>
                 </div>
             `).join('');
             lucide.createIcons();
         }
 
-        function filterProducts() { 
-            const val = document.getElementById('search-bar').value;
-            renderProducts(val); 
+        function filterProducts() {
+            const query = document.getElementById('search-bar').value;
+            renderProducts(query);
         }
 
         function toggleCart() { document.getElementById('cart-panel').classList.toggle('cart-active'); }
@@ -130,26 +105,35 @@
         
         function addToCart(id) {
             const p = products.find(i => i.id === id);
-            if (!cart.find(i => i.id === id)) { 
-                cart.push(p); 
-                updateCartUI(); 
-                toggleCart(); 
-            }
+            if (!cart.find(i => i.id === id)) { cart.push(p); updateCart(); toggleCart(); }
         }
 
-        function updateCartUI() {
+        function updateCart() {
             document.getElementById('cart-count').innerText = cart.length;
             let total = 0;
             document.getElementById('cart-items').innerHTML = cart.map(i => {
                 total += i.price;
-                return `<div class="flex justify-between bg-white/5 p-4 rounded-xl text-white"><span>${i.name}</span><b>₦${i.price.toLocaleString()}</b></div>`;
+                return `<div class="flex justify-between text-sm bg-white/5 p-3 rounded-lg text-white"><p>${i.name}</p><b>₦${i.price}</b></div>`;
             }).join('');
             document.getElementById('cart-total').innerText = "₦" + total.toLocaleString();
         }
 
+        // CRITICAL CHECK FOR SUCCESS
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            // If URL contains status=successful OR tx_ref, it means user just paid.
+            if (urlParams.get('status') === 'successful' || urlParams.get('tx_ref')) {
+                const linkContainer = document.getElementById('download-links');
+                const driveLink = `https://drive.google.com/file/d/${products[0].fileID}/view?usp=sharing`;
+                linkContainer.innerHTML = `<a href="${driveLink}" target="_blank" class="block w-full bg-blue-600 py-4 rounded-xl font-bold text-white shadow-lg">DOWNLOAD NOW</a>`;
+                toggleModal('success-modal');
+            }
+            renderProducts();
+        };
+
         function checkout() {
             const email = document.getElementById('user-email').value;
-            if (!email.includes('@')) return alert("Enter delivery email first!");
+            if (!email.includes('@')) return alert("Enter email first!");
 
             FlutterwaveCheckout({
                 public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X",
@@ -157,28 +141,10 @@
                 amount: cart.reduce((s, i) => s + i.price, 0),
                 currency: "NGN",
                 customer: { email: email },
-                callback: function(data) {
-                    if (data.status === "successful") {
-                        const linkContainer = document.getElementById('download-links');
-                        linkContainer.innerHTML = cart.map(item => {
-                            // Using the "View" link as a safety backup because direct download can be blocked by mobile browsers
-                            const dlUrl = `https://drive.google.com/file/d/${item.fileID}/view?usp=sharing`;
-                            
-                            // Try to trigger opening the tab
-                            window.open(dlUrl, '_blank');
-
-                            return `<a href="${dlUrl}" target="_blank" class="block w-full bg-blue-600 py-4 rounded-xl font-bold text-white">Open ${item.name}</a>`;
-                        }).join('');
-
-                        toggleModal('success-modal');
-                        cart = [];
-                        updateCartUI();
-                    }
-                }
+                redirect_url: "https://nulltracedave.github.io/DigitalVault/",
+                callback: function(data) { }
             });
         }
-
-        renderProducts();
     </script>
 </body>
 </html>
