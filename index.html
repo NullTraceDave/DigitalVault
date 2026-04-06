@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigitalVault Pro | Enterprise Assets</title>
+    
+    <script src="https://checkout.flutterwave.com/v3.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f8fafc; overflow-x: hidden; }
+
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.07); }
+        .glass-card:hover { transform: translateY(-12px); border-color: #3b82f6; box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25); }
+        
+        .tab-active { background: #3b82f6 !important; color: white !important; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3); }
+        
+        #cart-panel { transform: translateX(100%); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cart-active { transform: translateX(0) !important; }
+        
+        .modal-active { display: flex !important; animation: scaleIn 0.3s ease; }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .toast-active { transform: translateY(0) !important; opacity: 1 !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col">
+
+    <div class="w-full bg-blue-600 py-2 text-center text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+        Limited Time Offer: Get 20% Off Your First Digital Purchase
+    </div>
+
+    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 z-[60] glass px-6 py-3 rounded-2xl flex items-center gap-3 opacity-0 -translate-y-20 transition-all duration-500 pointer-events-none">
+        <div class="bg-green-500 p-1 rounded-full"><i data-lucide="check" class="w-4 h-4 text-white"></i></div>
+        <span class="text-sm font-bold text-white">Added to Vault!</span>
+    </div>
+
+    <nav class="max-w-7xl mx-auto p-6 w-full flex justify-between items-center sticky top-0 z-50 bg-[#020617]/80 backdrop-blur-xl border-b border-white/5">
+        <div class="flex items-center gap-3 cursor-pointer group" onclick="location.reload()">
+            <div class="bg-blue-600 p-2.5 rounded-2xl group-hover:rotate-12 transition-all"><i data-lucide="zap" class="text-white"></i></div>
+            <span class="text-2xl font-black tracking-tighter text-white">DigitalVault<span class="text-blue-500">.</span></span>
+        </div>
+        <div class="flex items-center gap-6">
+            <button onclick="toggleCart()" class="relative glass p-3 rounded-xl hover:bg-white/10 transition-all">
+                <i data-lucide="shopping-bag" class="w-6 h-6 text-white"></i>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full text-white">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <header class="max-w-5xl mx-auto text-center pt-20 pb-12 px-6">
+        <h1 class="text-5xl md:text-7xl font-black mb-4 italic tracking-tighter text-white uppercase">The Digital Vault Store<span class="text-blue-600">.</span></h1>
+        <p class="text-gray-400 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto">Your premium marketplace for academic project guides, standardized templates, and custom data analysis software.</p>
+        
+        <div class="max-w-2xl mx-auto space-y-6">
+            <div class="relative group">
+                <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-500 transition-all"></i>
+                <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search assets..." class="w-full glass rounded-3xl py-5 pl-14 pr-6 outline-none text-white focus:ring-2 focus:ring-blue-500/50 transition-all text-lg">
+            </div>
+            
+            <div class="flex flex-wrap justify-center gap-3">
+                <button onclick="filterCategory('All')" class="category-btn tab-active px-6 py-2.5 rounded-2xl text-sm font-bold glass transition-all">All</button>
+                <button onclick="filterCategory('Guides')" class="category-btn px-6 py-2.5 rounded-2xl text-sm font-bold glass transition-all">Guides</button>
+                <button onclick="filterCategory('Templates')" class="category-btn px-6 py-2.5 rounded-2xl text-sm font-bold glass transition-all">Templates</button>
+                <button onclick="filterCategory('Software')" class="category-btn px-6 py-2.5 rounded-2xl text-sm font-bold glass transition-all">Software</button>
+            </div>
+        </div>
+
+        <div class="max-w-md mx-auto mt-10 glass p-2 rounded-2xl border-white/10">
+            <input type="email" id="user-email" placeholder="Delivery Email (Required)" class="bg-transparent border-none text-center w-full py-3 outline-none text-white font-semibold">
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="max-w-7xl mx-auto px-6 pb-32">
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+    </main>
+
+    <div id="success-modal" class="fixed inset-0 bg-black/98 z-[70] hidden items-center justify-center p-4">
+        <div class="text-center glass p-12 rounded-[3rem] max-w-lg border-blue-500/30">
+            <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-blue-500/50">
+                <i data-lucide="check" class="text-white w-10 h-10"></i>
+            </div>
+            <h2 class="text-4xl font-black mb-4 text-white">Payment Confirmed!</h2>
+            <p class="text-gray-400 mb-10 leading-relaxed font-medium">Your assets have been unlocked. Download them individually below.</p>
+            <div id="download-links" class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar"></div>
+            <button onclick="location.reload()" class="mt-10 text-gray-500 hover:text-white transition-all font-bold tracking-widest text-xs uppercase">Done & Return</button>
+        </div>
+    </div>
+
+    <footer class="w-full py-12 border-t border-white/5 bg-[#020617]">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <div class="bg-blue-600/20 p-1.5 rounded-lg"><i data-lucide="zap" class="w-4 h-4 text-blue-500"></i></div>
+                <span class="text-sm font-bold text-white tracking-tighter">DigitalVault</span>
+            </div>
+            <p class="text-gray-500 text-xs font-bold uppercase tracking-widest">© 2026 DigitalVault Pro. All Rights Reserved.</p>
+            <div class="flex gap-6 text-gray-500 text-[10px] font-bold uppercase tracking-widest">
+                <a href="#" class="hover:text-blue-500 transition-colors">Privacy</a>
+                <a href="#" class="hover:text-blue-500 transition-colors">Terms</a>
+            </div>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/2348143224090" target="_blank" class="fixed bottom-8 right-8 z-50 bg-green-500 p-4 rounded-2xl shadow-2xl hover:scale-110 transition-all flex items-center gap-3">
+        <i data-lucide="message-square" class="text-white w-6 h-6"></i>
+        <span class="text-white font-bold text-sm hidden md:block">Live Support</span>
+    </a>
+
+    <div id="cart-panel" class="fixed top-0 right-0 h-full w-full md:w-[450px] bg-[#020617]/95 backdrop-blur-2xl border-l border-white/10 z-[60] p-10 flex flex-col">
+        <div class="flex justify-between items-center mb-10">
+            <h2 class="text-3xl font-black text-white italic">Vault Items</h2>
+            <button onclick="toggleCart()" class="glass p-3 rounded-xl hover:text-red-400 transition-all"><i data-lucide="x"></i></button>
+        </div>
+        <div id="cart-items" class="flex-grow space-y-6 overflow-y-auto custom-scrollbar"></div>
+        <div class="pt-8 border-t border-white/10 mt-6">
+            <div class="flex justify-between items-center mb-8">
+                <span class="text-gray-400 font-bold uppercase tracking-tighter">Grand Total</span>
+                <span id="cart-total" class="text-4xl font-black text-white italic">₦0</span>
+            </div>
+            <button onclick="checkout()" class="w-full bg-blue-600 py-5 rounded-2xl font-black text-white shadow-xl hover:bg-blue-500 transition-all text-xl uppercase tracking-wider">Secure Purchase</button>
+        </div>
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: "Edoni Study Guide", price: 2000, category: "Guides", desc: "Comprehensive material for final year students.", fileID: "1WaJCKQyrUR-U0rqssTGucuS21brgL_Pg", icon: "book-open", sold: 124, rating: 5 },
+            { id: 2, name: "Project Template", price: 3500, category: "Templates", desc: "Standardized blueprint for thesis work.", fileID: "EXAMPLE_ID_2", icon: "file-text", sold: 86, rating: 4 },
+            { id: 3, name: "Data Analysis Script", price: 5000, category: "Software", desc: "Automated analysis tool for salinity testing.", fileID: "EXAMPLE_ID_3", icon: "code", sold: 12, rating: 5 }
+        ];
+
+        let cart = [];
+        let currentCategory = 'All';
+
+        function renderProducts(query = '') {
+            const grid = document.getElementById('product-grid');
+            const filtered = products.filter(p => 
+                (currentCategory === 'All' || p.category === currentCategory) &&
+                p.name.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass glass-card p-8 rounded-[2.5rem] flex flex-col h-full transition-all duration-300">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="w-14 h-14 bg-blue-600/10 text-blue-400 rounded-2xl flex items-center justify-center"><i data-lucide="${p.icon}"></i></div>
+                        <span class="bg-white/5 text-gray-400 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-white/5 uppercase">${p.category}</span>
+                    </div>
+                    <h3 class="font-black text-2xl text-white mb-2 italic uppercase tracking-tighter">${p.name}</h3>
+                    <div class="flex items-center gap-1 mb-4">
+                        ${[1,2,3,4,5].map(star => `
+                            <i data-lucide="star" class="w-3 h-3 ${star <= p.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-600'}"></i>
+                        `).join('')}
+                        <span class="text-[10px] text-gray-500 font-bold ml-2 uppercase">(${p.sold} SOLD)</span>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-8">${p.desc}</p>
+                    <div class="mt-auto flex justify-between items-center">
+                        <span class="font-black text-2xl text-white italic">₦${p.price.toLocaleString()}</span>
+                        <button onclick="addToCart(${p.id})" class="bg-blue-600 text-white p-4 rounded-2xl hover:bg-white hover:text-blue-600 active:scale-90 transition-all"><i data-lucide="plus"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function toggleModal(id) { document.getElementById(id).classList.toggle('modal-active'); }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.classList.add('toast-active');
+            setTimeout(() => t.classList.remove('toast-active'), 2500);
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                if(btn.innerText === cat) btn.classList.add('tab-active');
+            });
+            renderProducts();
+        }
+
+        function filterProducts() { renderProducts(document.getElementById('search-bar').value); }
+        function toggleCart() { document.getElementById('cart-panel').classList.toggle('cart-active'); }
+        
+        function addToCart(id) {
+            const p = products.find(i => i.id === id);
+            if (!cart.find(i => i.id === id)) { 
+                cart.push(p); 
+                updateCart(); 
+                showToast();
+            }
+        }
+
+        function updateCart() {
+            document.getElementById('cart-count').innerText = cart.length;
+            let total = 0;
+            document.getElementById('cart-items').innerHTML = cart.map(i => {
+                total += i.price;
+                return `
+                <div class="flex items-center gap-4 glass p-4 rounded-2xl border border-white/5">
+                    <div class="flex-grow">
+                        <p class="text-white font-bold text-sm uppercase italic">${i.name}</p>
+                        <p class="text-blue-400 font-bold text-xs">₦${i.price.toLocaleString()}</p>
+                    </div>
+                    <button onclick="removeFromCart(${i.id})" class="text-gray-500 hover:text-red-500 transition-colors">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    </button>
+                </div>`;
+            }).join('');
+            document.getElementById('cart-total').innerText = "₦" + total.toLocaleString();
+            lucide.createIcons();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCart();
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('status') === 'successful' || urlParams.get('tx_ref')) {
+                const linkContainer = document.getElementById('download-links');
+                linkContainer.innerHTML = `<a href="https://drive.google.com/file/d/${products[0].fileID}/view?usp=sharing" target="_blank" class="flex items-center justify-between w-full bg-blue-600 p-5 rounded-2xl text-white font-bold"><i data-lucide="download-cloud"></i> <span>Download Edoni Guide</span></a>`;
+                toggleModal('success-modal');
+                lucide.createIcons();
+            }
+            renderProducts();
+        };
+
+        function checkout() {
+            const email = document.getElementById('user-email').value;
+            if (!email.includes('@')) return alert("Please provide your delivery email first.");
+            if (cart.length === 0) return alert("Select at least one asset to proceed.");
+
+            // Get names of all items in cart
+            const itemNames = cart.map(item => item.name).join(", ");
+            
+            // Setting custom title so items appear prominently on receipt
+            const paymentTitle = cart.length > 1 ? "DigitalVault: Multiple Assets" : "DigitalVault: " + itemNames;
+
+            FlutterwaveCheckout({
+                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X",
+                tx_ref: "DV-" + Date.now(),
+                amount: cart.reduce((s, i) => s + i.price, 0),
+                currency: "NGN",
+                customer: { email: email },
+                customizations: {
+                    title: paymentTitle,
+                    description: "Items: " + itemNames
+                },
+                redirect_url: "https://nulltracedave.github.io/DigitalVault/",
+                callback: function(data) { }
+            });
+        }
+    </script>
+</body>
+          </html>
