@@ -34,7 +34,7 @@
             <span class="text-2xl font-extrabold tracking-tighter text-white">DigitalVault<span class="text-blue-500">.</span></span>
         </div>
         <div class="flex items-center gap-4">
-            <button onclick="toggleModal('contact-modal')" class="text-sm font-semibold text-gray-400 hover:text-white transition-colors">Support</button>
+            <button onclick="toggleModal('contact-modal')" class="text-sm font-semibold text-gray-400 hover:text-white transition-colors text-white">Support</button>
             <button onclick="toggleCart()" class="relative bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10">
                 <i data-lucide="shopping-bag" class="w-5 h-5 text-white"></i>
                 <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white">0</span>
@@ -81,10 +81,10 @@
             <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/30">
                 <i data-lucide="check" class="text-white w-10 h-10"></i>
             </div>
-            <h2 class="text-2xl font-bold mb-2 text-white">Done!</h2>
-            <p class="text-gray-400 mb-8">Click below to open your file. If it doesn't open, copy the link.</p>
+            <h2 class="text-2xl font-bold mb-2 text-white">Payment Success!</h2>
+            <p class="text-gray-400 mb-8">Your download should start. If not, click below:</p>
             
-            <div id="download-container" class="space-y-4"></div>
+            <div id="download-links" class="space-y-4"></div>
             
             <button onclick="location.reload()" class="mt-8 text-gray-500 text-sm hover:text-white underline">Back to Store</button>
         </div>
@@ -99,7 +99,7 @@
                 desc: "Full comprehensive guide for final year students.", 
                 fileID: "1WaJCKQyrUR-U0rqssTGucuS21brgL_Pg", 
                 icon: "book-open", 
-                tag: "Hot" 
+                tag: "New" 
             }
         ];
 
@@ -111,7 +111,7 @@
             grid.innerHTML = filtered.map(p => `
                 <div class="glass-card p-8 rounded-[2rem] relative flex flex-col h-full">
                     <div class="absolute top-4 right-4 bg-blue-600/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-500/20">${p.tag}</div>
-                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6"><i data-lucide="${p.icon}"></i></div>
+                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6 text-white"><i data-lucide="${p.icon}"></i></div>
                     <h3 class="text-xl font-bold mb-3 text-white text-center md:text-left">${p.name}</h3>
                     <p class="text-gray-400 text-sm mb-8 leading-relaxed">${p.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
@@ -130,52 +130,49 @@
         function toggleCart() { document.getElementById('cart-panel').classList.toggle('cart-active'); }
 
         function addToCart(id) {
-            const product = products.find(p => p.id === id);
-            if (!cart.find(item => item.id === id)) {
-                cart.push(product);
-                updateCartUI();
-                toggleCart();
-            }
-        }
-
-        function removeFromCart(id) {
-            cart = cart.filter(item => item.id !== id);
-            updateCartUI();
+            const p = products.find(i => i.id === id);
+            if (!cart.find(i => i.id === id)) { cart.push(p); updateCartUI(); toggleCart(); }
         }
 
         function updateCartUI() {
             document.getElementById('cart-count').innerText = cart.length;
             let total = 0;
-            document.getElementById('cart-items').innerHTML = cart.map(item => {
-                total += item.price;
-                return `<div class="flex justify-between items-center bg-white/5 p-4 rounded-xl"><div><p class="font-bold text-sm text-white">${item.name}</p><p class="text-blue-400 text-xs font-bold">₦${item.price.toLocaleString()}</p></div><button onclick="removeFromCart(${item.id})" class="text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+            document.getElementById('cart-items').innerHTML = cart.map(i => {
+                total += i.price;
+                return `<div class="flex justify-between bg-white/5 p-4 rounded-xl text-white"><span>${i.name}</span><b>₦${i.price.toLocaleString()}</b></div>`;
             }).join('');
             document.getElementById('cart-total').innerText = "₦" + total.toLocaleString();
-            lucide.createIcons();
         }
 
         function checkout() {
             const email = document.getElementById('user-email').value;
-            if (!email || !email.includes('@')) { alert("Enter email first!"); return; }
-            if (cart.length === 0) return;
+            if (!email.includes('@')) return alert("Enter delivery email first!");
 
             FlutterwaveCheckout({
-                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X", // Paste YOUR key here
+                public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X",
                 tx_ref: "DV-" + Date.now(),
-                amount: cart.reduce((sum, item) => sum + item.price, 0),
+                amount: cart.reduce((s, i) => s + i.price, 0),
                 currency: "NGN",
                 customer: { email: email },
                 callback: (data) => {
                     if (data.status === "successful") {
-                        const container = document.getElementById('download-container');
-                        // WE CHANGE THE URL TO "VIEW" MODE - THIS NEVER GETS BLOCKED
-                        container.innerHTML = cart.map(item => `
-                            <a href="https://drive.google.com/file/d/${item.fileID}/view" 
-                               class="block w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-lg" target="_blank">
-                               Open ${item.name}
-                            </a>
-                        `).join('');
+                        const linkContainer = document.getElementById('download-links');
                         
+                        linkContainer.innerHTML = cart.map(item => {
+                            const downloadUrl = `https://drive.google.com/uc?export=download&id=${item.fileID}`;
+                            
+                            // FORCE AUTO-DOWNLOAD
+                            const temp = document.createElement('a');
+                            temp.href = downloadUrl;
+                            temp.target = "_blank";
+                            temp.download = item.name;
+                            document.body.appendChild(temp);
+                            temp.click();
+                            document.body.removeChild(temp);
+
+                            return `<a href="${downloadUrl}" target="_blank" class="block w-full bg-blue-600 py-4 rounded-xl font-bold text-white">Download ${item.name}</a>`;
+                        }).join('');
+
                         toggleModal('success-modal');
                         cart = [];
                         updateCartUI();
