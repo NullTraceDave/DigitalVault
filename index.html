@@ -42,13 +42,13 @@
     </nav>
 
     <header class="max-w-4xl mx-auto text-center py-16 px-6">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic">Digital Store.</h1>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent italic text-white">Digital Store.</h1>
         <div class="relative max-w-md mx-auto mb-8">
             <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5"></i>
             <input type="text" id="search-bar" onkeyup="filterProducts()" placeholder="Search assets..." class="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-white">
         </div>
         <div class="max-w-md mx-auto glass-card p-2 rounded-2xl border-blue-500/20">
-            <input type="email" id="user-email" placeholder="Delivery Email (Required)" class="bg-transparent border-none focus:ring-0 px-4 py-3 w-full text-white text-center">
+            <input type="email" id="user-email" placeholder="Delivery Email (Required)" class="bg-transparent border-none focus:ring-0 px-4 py-3 w-full text-white text-center outline-none">
         </div>
     </header>
 
@@ -65,10 +65,10 @@
             <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/30">
                 <i data-lucide="check" class="text-white w-10 h-10"></i>
             </div>
-            <h2 class="text-2xl font-bold mb-2 text-white">Payment Done!</h2>
-            <p class="text-gray-400 mb-8">Click below to open your file. If it doesn't open, ensure pop-ups are allowed.</p>
+            <h2 class="text-2xl font-bold mb-2 text-white">Payment Success!</h2>
+            <p class="text-gray-400 mb-8">Click the button below to get your file instantly.</p>
             <div id="download-links" class="space-y-4"></div>
-            <button onclick="location.reload()" class="mt-8 text-gray-500 text-sm hover:text-white underline">Back to Store</button>
+            <button onclick="window.location.href='https://nulltracedave.github.io/DigitalVault/'" class="mt-8 text-gray-500 text-sm hover:text-white underline">Back to Store</button>
         </div>
     </div>
 
@@ -83,7 +83,7 @@
                 <span>Total:</span>
                 <span id="cart-total">₦0</span>
             </div>
-            <button onclick="checkout()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 shadow-lg text-white">Checkout Now</button>
+            <button onclick="checkout()" class="w-full bg-blue-600 py-4 rounded-2xl font-bold hover:bg-blue-500 transition-all text-white">Checkout Now</button>
         </div>
     </div>
 
@@ -113,7 +113,7 @@
                     <p class="text-gray-400 text-sm mb-8 leading-relaxed">${p.desc}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <span class="text-2xl font-black italic text-white">₦${p.price.toLocaleString()}</span>
-                        <button onclick="addToCart(${p.id})" class="bg-blue-600 p-4 rounded-2xl font-bold text-white transition-all active:scale-90"><i data-lucide="plus"></i></button>
+                        <button onclick="addToCart(${p.id})" class="bg-blue-600 p-4 rounded-2xl font-bold text-white active:scale-90"><i data-lucide="plus"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -130,11 +130,7 @@
         
         function addToCart(id) {
             const p = products.find(i => i.id === id);
-            if (!cart.find(i => i.id === id)) { 
-                cart.push(p); 
-                updateCartUI(); 
-                toggleCart(); 
-            }
+            if (!cart.find(i => i.id === id)) { cart.push(p); updateCartUI(); toggleCart(); }
         }
 
         function updateCartUI() {
@@ -147,9 +143,22 @@
             document.getElementById('cart-total').innerText = "₦" + total.toLocaleString();
         }
 
+        // The critical part: detecting the return from Flutterwave
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('status') === 'successful') {
+                const linkContainer = document.getElementById('download-links');
+                // Link opens the drive file in a way mobile browsers won't block
+                const finalUrl = `https://drive.google.com/file/d/${products[0].fileID}/view?usp=sharing`;
+                linkContainer.innerHTML = `<a href="${finalUrl}" target="_blank" class="block w-full bg-blue-600 py-4 rounded-xl font-bold text-white shadow-lg">Open Edoni Guide</a>`;
+                toggleModal('success-modal');
+            }
+            renderProducts();
+        };
+
         function checkout() {
             const email = document.getElementById('user-email').value;
-            if (!email.includes('@')) return alert("Enter delivery email first!");
+            if (!email.includes('@')) return alert("Please enter your email at the top first!");
 
             FlutterwaveCheckout({
                 public_key: "FLWPUBK_TEST-e901ddb220d390db03c72ca07954cbdf-X",
@@ -157,28 +166,13 @@
                 amount: cart.reduce((s, i) => s + i.price, 0),
                 currency: "NGN",
                 customer: { email: email },
+                // Force return to your site so the window.onload logic can show the download button
+                redirect_url: "https://nulltracedave.github.io/DigitalVault/",
                 callback: function(data) {
-                    if (data.status === "successful") {
-                        const linkContainer = document.getElementById('download-links');
-                        linkContainer.innerHTML = cart.map(item => {
-                            // Using the "View" link as a safety backup because direct download can be blocked by mobile browsers
-                            const dlUrl = `https://drive.google.com/file/d/${item.fileID}/view?usp=sharing`;
-                            
-                            // Try to trigger opening the tab
-                            window.open(dlUrl, '_blank');
-
-                            return `<a href="${dlUrl}" target="_blank" class="block w-full bg-blue-600 py-4 rounded-xl font-bold text-white">Open ${item.name}</a>`;
-                        }).join('');
-
-                        toggleModal('success-modal');
-                        cart = [];
-                        updateCartUI();
-                    }
+                    // Redirect handles this now
                 }
             });
         }
-
-        renderProducts();
     </script>
 </body>
 </html>
