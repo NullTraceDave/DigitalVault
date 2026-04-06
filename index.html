@@ -224,11 +224,17 @@
 
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('status') === 'successful' || urlParams.get('tx_ref')) {
+            const isSuccess = urlParams.get('status') === 'successful' || urlParams.get('tx_ref');
+
+            if (isSuccess) {
                 const linkContainer = document.getElementById('download-links');
                 linkContainer.innerHTML = `<a href="https://drive.google.com/file/d/${products[0].fileID}/view?usp=sharing" target="_blank" class="flex items-center justify-between w-full bg-blue-600 p-5 rounded-2xl text-white font-bold"><i data-lucide="download-cloud"></i> <span>Download Edoni Guide</span></a>`;
+                
                 toggleModal('success-modal');
                 lucide.createIcons();
+
+                // Clear URL parameters to prevent re-triggering modal on refresh
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
             renderProducts();
         };
@@ -260,4 +266,5 @@
         }
     </script>
 </body>
-          </html>
+                    </html>
+
