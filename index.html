@@ -223,19 +223,42 @@
             updateCart();
         }
 
+                // ... (rest of your script remains the same)
+
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const isSuccess = urlParams.get('status') === 'successful' || urlParams.get('tx_ref');
 
             if (isSuccess) {
                 const linkContainer = document.getElementById('download-links');
-                linkContainer.innerHTML = `<a href="https://drive.google.com/file/d/${products[0].fileID}/view?usp=sharing" target="_blank" class="flex items-center justify-between w-full bg-blue-600 p-5 rounded-2xl text-white font-bold"><i data-lucide="download-cloud"></i> <span>Download Edoni Guide</span></a>`;
+                
+                // 1. Retrieve the saved cart from local storage
+                const savedCart = JSON.parse(localStorage.getItem('pendingCart')) || [];
+                
+                if (savedCart.length > 0) {
+                    // 2. Map through ALL items that were in the cart and create links
+                    linkContainer.innerHTML = savedCart.map(item => `
+                        <a href="https://drive.google.com/file/d/${item.fileID}/view?usp=sharing" 
+                           target="_blank" 
+                           class="flex items-center justify-between w-full bg-blue-600/20 border border-blue-500/30 p-5 rounded-2xl text-white font-bold hover:bg-blue-600 transition-all mb-3">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="download-cloud"></i>
+                                <span>Download ${item.name}</span>
+                            </div>
+                            <i data-lucide="external-link" class="w-4 h-4 opacity-50"></i>
+                        </a>
+                    `).join('');
+                } else {
+                    // Fallback if storage was cleared
+                    linkContainer.innerHTML = `<p class="text-gray-500 italic">No items found in session. Please contact support.</p>`;
+                }
                 
                 toggleModal('success-modal');
                 lucide.createIcons();
 
-                // Clear URL parameters to prevent re-triggering modal on refresh
+                // Clear the URL and the saved cart so it doesn't repeat
                 window.history.replaceState({}, document.title, window.location.pathname);
+                localStorage.removeItem('pendingCart');
             }
             renderProducts();
         };
@@ -245,10 +268,10 @@
             if (!email.includes('@')) return alert("Please provide your delivery email first.");
             if (cart.length === 0) return alert("Select at least one asset to proceed.");
 
-            // Get names of all items in cart
+            // 3. SAVE THE CART to local storage before leaving the page
+            localStorage.setItem('pendingCart', JSON.stringify(cart));
+
             const itemNames = cart.map(item => item.name).join(", ");
-            
-            // Setting custom title so items appear prominently on receipt
             const paymentTitle = cart.length > 1 ? "DigitalVault: Multiple Assets" : "DigitalVault: " + itemNames;
 
             FlutterwaveCheckout({
@@ -264,6 +287,7 @@
                 redirect_url: "https://nulltracedave.github.io/DigitalVault/",
                 callback: function(data) { }
             });
+    
         }
     </script>
 </body>
